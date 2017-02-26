@@ -11,10 +11,11 @@ https://golang.org
 #en: * Methods
 
 В Go нет классов.
+Впрочем, вы можете определять методы на типах.
 #en: Go does not have classes.
 #en: However, you can define methods on types.
 
-Метод - это функция со специальным аргументов _receiver_.
+Метод - это функция со специальным аргументом _receiver_.
 #en: A method is a function with a special _receiver_ argument.
 
 Приемник отображается в своем собственном списке аргументов между ключевым словом
@@ -41,7 +42,7 @@ https://golang.org
 * Методы. Продолжение.
 #en: * Methods continued
 
-Вы также можете объявить метод на // TODO: non-struct types
+Вы также можете объявить метод на любом своем типе, а не только на структурах.
 #en: You can declare a method on non-struct types, too.
 
 В этом примере мы видим числовой тип `MyFloat` с методом `Abs`.
@@ -50,7 +51,7 @@ https://golang.org
 Вы можете объявлять метод только с тем приемником, который определен в том же пакете,
 что и метод.
 Вы не можете объявить метод с приемником, который определен в другом пакете (что
-включает в себя встроенные типы, такие как `int`)
+включает в себя встроенные типы, такие как `int`).
 #en: You can only declare a method with a receiver whose type is defined in the same
 #en: package as the method.
 #en: You cannot declare a method with a receiver whose type is defined in another
@@ -58,25 +59,24 @@ https://golang.org
 
 .play methods/methods-continued.go
 
-Передача приемника по указателю
+Методы с указателем в роли приемника
 #en: * Pointer receivers
 
-Вы можете объявить метод с передачей приемника по указателю.
-// TODO: звучит криво. Лучше: Вы можете объявить метод с указателем на приемник.
+Вы можете объявить метод с приемником, переданным по указателю.
 #en: You can declare methods with pointer receivers.
 
 Это значит, что тип приемника имеет синтаксис литерала `*T` для некоторого типа `T`.
-(Кроме того, `T` не может указывать на самого себя, как в случае с `*int`.) // TODO: Сомнительно
+(Кроме того, `T` не может указывать на самого себя, как в случае с `*int`.)
 #en: This means the receiver type has the literal syntax `*T` for some type `T`.
 #en: (Also, `T` cannot itself be a pointer such as `*int`.)
 
 Например, метод `Scale` объявлен на `*Vertex`.
 #en: For example, the `Scale` method here is defined on `*Vertex`.
 
-Методы с передачей приемника по указателю могут изменять значение, на которое указывает
-приемник (как здест делает `Scale`). // TODO: опять не нравится, как звучит
-Поскольку часто необходимо в методах изменять их приемников, передача приемника
-по указателю используются чаще, чем передача приемника по значению.
+Методы с приемником по указателю могут изменять значение, на которое указывает
+приемник (как здесь делает `Scale`).
+Поскольку часто необходимо в методах изменять приемник, передача приемника по указателю
+используются чаще, чем передача приемника по значению.
 #en: Methods with pointer receivers can modify the value to which the receiver
 #en: points (as `Scale` does here).
 #en: Since methods often need to modify their receiver, pointer receivers are more
@@ -118,11 +118,12 @@ https://golang.org
 
 .play methods/methods-pointers-explained.go
 
-* Методы и указатели косвенности // TODO: Не уверен, что верный перевод
+* Методы и косвеность указателей
+#TODO: Не уверен, что верный перевод
 #en: * Methods and pointer indirection
 
 Сравнивая две предыдущие программы, вы могли заметить, что функции
-с аргументами указателями должны принимать указатели: // TODO: и снова криво
+с аргументами по указателю должны принимать указатели:
 #en: Comparing the previous two programs, you might notice that
 #en: functions with a pointer argument must take a pointer:
 
@@ -130,7 +131,7 @@ https://golang.org
 	ScaleFunc(v)  // Ошибка компиляции
 	ScaleFunc(&v) // OK
 
-в то время как методы с передачей приемника по указателю могут быть вызваны как на
+в то время как методы с приемниками по указателю могут быть вызваны как на
 указателе, так и на значении: // TODO: не нравится!
 #en: while methods with pointer receivers take either a value or a pointer as the
 #en: receiver when they are called:
@@ -141,9 +142,9 @@ https://golang.org
 	p.Scale(10) // OK
 
 Для оператора `v.Scale(5)`, даже если `v` это значение, а не указатель,
-метод с приемником, переданным по указателю, вызовется автоматичестки. // TODO: Дословно переводить ужасно.
+метод с приемником по указателю, вызовется автоматичестки.
 То есть, для удобства, Go интерпретирует оператор `v.Scale(5)` как `(&v).Scale(5)`,
-поскольку метод `Scale` принимает приемник по указателю. // TODO: принимает приемник =)
+поскольку метод `Scale` принимает приемник по указателю.
 #en: For the statement `v.Scale(5)`, even though `v` is a value and not a pointer,
 #en: the method with the pointer receiver is called automatically.
 #en: That is, as a convenience, Go interprets the statement `v.Scale(5)` as
@@ -151,16 +152,22 @@ https://golang.org
 
 .play methods/indirection.go
 
+* Методы и косвеность указателей (2)
+#TODO: Не уверен, что верный перевод
 #en: * Methods and pointer indirection (2)
 
+Подобные вещи происходят и в обратном направлении.
 #en: The equivalent thing happens in the reverse direction.
 
+Функции, которые принимают аргумент по значению должны получать значение этого конкретного типа:
 #en: Functions that take a value argument must take a value of that specific type:
 
 	var v Vertex
 	fmt.Println(AbsFunc(v))  // OK
-	fmt.Println(AbsFunc(&v)) // Compile error!
+	fmt.Println(AbsFunc(&v)) // Ошибка компиляции!
 
+в то время, как методы с приемником по значению могут принимать как значение, так и указатель
+во время вызова:
 #en: while methods with value receivers take either a value or a pointer as the
 #en: receiver when they are called:
 
@@ -169,50 +176,76 @@ https://golang.org
 	p := &v
 	fmt.Println(p.Abs()) // OK
 
+В этом случае вызов метода `p.Abs()` интерпретируется как `(*p).Abs()`.
 #en: In this case, the method call `p.Abs()` is interpreted as `(*p).Abs()`.
 
 .play methods/indirection-values.go
 
+*Выбор передачи приемника по значению или указателю
 #en: * Choosing a value or pointer receiver
 
+Есть две причины, чтобы использовать приемник по указателю.
 #en: There are two reasons to use a pointer receiver.
 
+Во-первых, чтобы в методе можно было изменять значение, на которое указывает приемник.
 #en: The first is so that the method can modify the value that its receiver points to.
 
+Во-вторых, чтобы избежать копирования значения при каждом вызове метода.
+Например, это может быть эффективным, если получатеть является большой структурой.
 #en: The second is to avoid copying the value on each method call.
 #en: This can be more efficient if the receiver is a large struct, for example.
 
+В этом примере оба метода (и `Scale`, и `Abs) принимают тип `*Vertex`, даже несмотря на то,
+что в методе `Abs` не нужно менять приемник.
 #en: In this example, both `Scale` and `Abs` are with receiver type `*Vertex`,
 #en: even though the `Abs` method needn't modify its receiver.
 
+В общем, все методы на данном типе должны иметь приемник либо по значению, либо по указателю,
+но не смесь и того, и другого.
+(Мы увидим почему на следущих страницах.)
 #en: In general, all methods on a given type should have either value or pointer
 #en: receivers, but not a mixture of both.
 #en: (We'll see why over the next few pages.)
 
 .play methods/methods-with-pointer-receivers.go
 
+* Интерфейсы
 #en: * Interfaces
 
+Интерфейс - это множество сигнатур методов.
 #en: An _interface_type_ is defined as a set of method signatures.
 
+Значением типа интерфейса может быть любое значение, которое реализует его методы.
 #en: A value of interface type can hold any value that implements those methods.
 
+*Примечание:* Злесь допущена ошибка в коде примера на строке 22.
+`Vertex` (тип значения) не реализует интерфейс `Abser`, потому что
+метод `Abs` определен только на `*Vertex` (тип указателя).
+#TODO: (the pointer type) - сомневаюсь.
 #en: *Note:* There is an error in the example code on line 22.
 #en: `Vertex` (the value type) doesn't implement `Abser` because
 #en: the `Abs` method is defined only on `*Vertex` (the pointer type).
 
 .play methods/interfaces.go
 
+Интерфейсы реализуются неявно
 #en: * Interfaces are implemented implicitly
 
+Тип реализует интерфейс реализуя его методы.
+В Go нет явного заверения о намерении, нет ключевого слова "implements".
+#TODO: может совсем не переводить explicit declaration of intent
 #en: A type implements an interface by implementing its methods.
 #en: There is no explicit declaration of intent, no "implements" keyword.
 
+Неявные интерфейсы разделяют определение интерфеса от его реализации,
+которая может появится в любом пакете без предварительной договоренности.
+#TODO: предварительной договоренности?
 #en: Implicit interfaces decouple the definition of an interface from its
 #en: implementation, which could then appear in any package without prearrangement.
 
 .play methods/interfaces-are-satisfied-implicitly.go
 
+* Значения интерфейса
 #en: * Interface values
 
 #en: Under the covers, interface values can be thought of as a tuple of a value and a
