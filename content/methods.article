@@ -15,7 +15,7 @@ https://golang.org
 #en: Go does not have classes.
 #en: However, you can define methods on types.
 
-Метод - это функция со специальным аргументом _receiver_.
+Метод - это функция со специальным аргументом _приемником_.
 #en: A method is a function with a special _receiver_ argument.
 
 Приемник отображается в своем собственном списке аргументов между ключевым словом
@@ -212,7 +212,7 @@ https://golang.org
 * Интерфейсы
 #en: * Interfaces
 
-Интерфейс - это множество сигнатур методов.
+_Тип_интерфейса_ определяет множество сигнатур методов.
 #en: An _interface_type_ is defined as a set of method signatures.
 
 Значением типа интерфейса может быть любое значение, которое реализует его методы.
@@ -248,49 +248,74 @@ https://golang.org
 * Значения интерфейса
 #en: * Interface values
 
+Под капотом, интерфейс можно рассматривать как кортеж из значения и конкретного типа:
 #en: Under the covers, interface values can be thought of as a tuple of a value and a
 #en: concrete type:
 
 	(value, type)
 
+Значение интерфейса имеет значение конкретного типа.
+#TODO: не уверен в переводе
 #en: An interface value holds a value of a specific underlying concrete type.
 
+Вызов метода интерфеса выполняет метод с таким же названием конкретного типа.
+#TODO: не уверен в переводе
 #en: Calling a method on an interface value executes the method of the same name on
 #en: its underlying type.
 
 .play methods/interface-values.go
 
+Интерфейсы с нулевым значением
+#TODO: стоит ли переводить nil?
 #en: * Interface values with nil underlying values
 
+Если конкретное значение внутри интерфейса равно nil, метод будет вызван
+с примеником, равным nil.
 #en: If the concrete value inside the interface itself is nil,
 #en: the method will be called with a nil receiver.
 
+В некоторых языках данная ситуация приведет к null pointer exception,
+но в Go это обычная ситуация писать методы, которые корректно обрабатывают
+вызов с nil-приемником (как метод `M` в примере.)
 #en: In some languages this would trigger a null pointer exception,
 #en: but in Go it is common to write methods that gracefully handle being called
 #en: with a nil receiver (as with the method `M` in this example.)
 
+Стоит отметить, что значение интерфейса, имеющего нулевое конкретное значение,
+само ненулевое.
 #en: Note that an interface value that holds a nil concrete value is itself non-nil.
 
 .play methods/interface-values-with-nil.go
 
+Нулевое значение интерфейса
 #en: * Nil interface values
 
+Нулевое значение интерфейса не имеет ни значения, ни конкретного типа.
 #en: A nil interface value holds neither value nor concrete type.
 
+Вызов метода на нулевом интерфейсе приведет к ошибке выполнения, поскольку
+нет никакого типа внутри интерфейса, позволяющего определить, какой
+_конкретный_метод_ нужно вызвать.
 #en: Calling a method on a nil interface is a run-time error because there is no
 #en: type inside the interface tuple to indicate which _concrete_ method to call.
 
 .play methods/nil-interface-values.go
 
+Пустой интерфейс
 #en: * The empty interface
 
+Интерфейс, определяющий пустое множество методов, называется _пустым_интерфейсом_:
 #en: The interface type that specifies zero methods is known as the _empty_interface_:
 
 	interface{}
 
+Пустой интерфейс может иметь значение любого типа.
+(Каждый тип реализует как минимум ноль методов.)
 #en: An empty interface may hold values of any type.
 #en: (Every type implements at least zero methods.)
 
+Пустой интерфейс используется в коде, который обрабатывает значения неизвестного типа.
+Например, метод `fmt.Print` принимает любое количество аргументов типа `interface{}`.
 #en: Empty interfaces are used by code that handles values of unknown type.
 #en: For example, `fmt.Print` takes any number of arguments of type `interface{}`.
 
