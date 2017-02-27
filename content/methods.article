@@ -321,52 +321,80 @@ _конкретный_метод_ нужно вызвать.
 
 .play methods/empty-interface.go
 
+Приведение типов
 #en: * Type assertions
 
+_Приведение_типов_ обеспечивает доступ к конкретному типу значения интерфейса.
 #en: A _type_assertion_ provides access to an interface value's underlying concrete value.
 
 	t := i.(T)
 
+Этот оператор утверждает, что значение интерфеса `i` имеет конкретный тип `T`
+и присваевает значение типа `T` переменной `t`.
+#TODO: пока не могу придумать нормальный перевод слову underlying
 #en: This statement asserts that the interface value `i` holds the concrete type `T`
 #en: and assigns the underlying `T` value to the variable `t`.
 
+Если `i` не типа `T`, оператор вызовет панику.
 #en: If `i` does not hold a `T`, the statement will trigger a panic.
 
+Для _проверки_, имеет ли значение интерфейса определенный тип,
+приведение типа может возвращать два значения: базовое значение и булево
+значение, сообщающее, завершилось ли приведение типа успехом.
+#TODO: тоже не нравится.
 #en: To _test_ whether an interface value holds a specific type,
 #en: a type assertion can return two values: the underlying value
 #en: and a boolean value that reports whether the assertion succeeded.
 
 	t, ok := i.(T)
 
+Если `i` имеет тип `T`, тогда в `t` попадет исходное значение и в `ok` будет true.
 #en: If `i` holds a `T`, then `t` will be the underlying value and `ok` will be true.
 
+Если нет, в `ok` будет false, а в `t` будет нулевое значение типа `T`, паника вызвана не будет.
 #en: If not, `ok` will be false and `t` will be the zero value of type `T`,
 #en: and no panic occurs.
 
+Обратите внимание на сходство между этим синтаксисом и чтением из карты.
+#TODO: карты?
 #en: Note the similarity between this syntax and that of reading from a map.
 
 .play methods/type-assertions.go
 
+* Switch по типу
 #en: * Type switches
 
+_Switch_по_типу_ - это конструкция, позволяющая сделать несколько приведений типов подряд.
 #en: A _type_switch_ is a construct that permits several type assertions in series.
 
+Switch по типу - это как обычная инструкция switch, но в разделах case указываются
+типы (не значения), и эти типы сравниваются с типом передоваемого значения, хранящегося в
+переданном значении интерфейса.
+#TODO: вот совсем не читаемо
 #en: A type switch is like a regular switch statement, but the cases in a type
 #en: switch specify types (not values), and those values are compared against
 #en: the type of the value held by the given interface value.
 
 	switch v := i.(type) {
 	case T:
-		// here v has type T
+		// здесь v имеет тип T
 	case S:
-		// here v has type S
+		// здесь v имеет тип S
 	default:
-		// no match; here v has the same type as i
+		// нет совпадений; здесь v имеет тот же тип, что и i
 	}
 
+Объявление в switch по типу имеет такой же синтаксис, как и приведение типа `i.(T)`,
+но конкретный тип `T` заменяется ключевым словом `type`.
 #en: The declaration in a type switch has the same syntax as a type assertion `i.(T)`,
 #en: but the specific type `T` is replaced with the keyword `type`.
 
+Эта инструкция switch проверяет, имеет ли интерфейсное значение `i`
+тип `T` или `S`.
+В каждом из case `T` и `S`, переменная будет иметь тип `T` or `S` соответственно
+и значение, хранящееся в `i`.
+В разделе defaulr (когда не найдено соответствий), переменная `v` будет того же типа
+и значения, что и переменная `i`.
 #en: This switch statement tests whether the interface value `i`
 #en: holds a value of type `T` or `S`.
 #en: In each of the `T` and `S` cases, the variable `v` will be of type
@@ -376,73 +404,99 @@ _конкретный_метод_ нужно вызвать.
 
 .play methods/type-switches.go
 
+* Stringers
+#TODO: надо ли переводить?
 #en: * Stringers
 
+Один из самый повсеместных интерфейсов - [[//golang.org/pkg/fmt/#Stringer][`Stringer`]], объявленный в пакете [[//golang.org/pkg/fmt/][`fmt`]].
 #en: One of the most ubiquitous interfaces is [[//golang.org/pkg/fmt/#Stringer][`Stringer`]] defined by the [[//golang.org/pkg/fmt/][`fmt`]] package.
 
 	type Stringer interface {
 		String() string
 	}
 
+`Stringer` - этро тип, который может описать себя как строку. Пакет `fmt` (и многие другие)
+ищут этот интерфейс для печати значений.
 #en: A `Stringer` is a type that can describe itself as a string. The `fmt` package
 #en: (and many others) look for this interface to print values.
 
 .play methods/stringer.go
 
+*Упражнение: Stringers
 #en: * Exercise: Stringers
 
+Для типа `IPAddr` реализуйте интерфейс `fmt.Stringer` для печати адреса в виде четырех чисел,
+разделенных точками.
 #en: Make the `IPAddr` type implement `fmt.Stringer` to print the address as
 #en: a dotted quad.
 
+Например, `IPAddr{1,`2,`3,`4}` должен быть распечатан как `"1.2.3.4"`.
 #en: For instance, `IPAddr{1,`2,`3,`4}` should print as `"1.2.3.4"`.
 
 .play methods/exercise-stringer.go
 
+* Ошибки
 #en: * Errors
 
+В программах Go ошибки выражаются с помощью значений `error`.
 #en: Go programs express error state with `error` values.
 
+Тип `error` - это встроенный интерфейс, похожий на `fmt.Stringer`:
 #en: The `error` type is a built-in interface similar to `fmt.Stringer`:
 
 	type error interface {
 		Error() string
 	}
 
+Как и с `fmt.Stringer`, пакет `fmt` ищет интерфейс `error`, когда печатает значения.
 #en: (As with `fmt.Stringer`, the `fmt` package looks for the `error` interface when
 #en: printing values.)
 
+Функции часто возвращают значение `error`, и вызываютщий код должен обрабатывать
+ошибки, проверяя, равна ли ошибка `nil`.
 #en: Functions often return an `error` value, and calling code should handle errors
 #en: by testing whether the error equals `nil`.
 
 	i, err := strconv.Atoi("42")
 	if err != nil {
-		fmt.Printf("couldn't convert number: %v\n", err)
+		fmt.Printf("не удалось преобразовать число: %v\n", err)
 		return
 	}
-	fmt.Println("Converted integer:", i)
+	fmt.Println("Преобразованное число:", i)
 
+Нулевая ошибка обозначает успех; ненулевая ошибка обозначает неудачу.
 #en: A nil `error` denotes success; a non-nil `error` denotes failure.
 
 .play methods/errors.go
 
+* Упражнение: Ошибки
 #en: * Exercise: Errors
 
+* Скопируйте вашу функцию `Sqrt` из [[/flowcontrol/8][одного из предыдущих упражнений]] и измените ее,
+чтобы она возвращала значение ошибки.
 #en: Copy your `Sqrt` function from the [[/flowcontrol/8][earlier exercise]] and modify it to return an `error` value.
 
+`Sqrt` должна возвращать ненулевую ошибку, если ей передано отрицательное число, поскольку
+она не поддерживает комплекстные числа.
 #en: `Sqrt` should return a non-nil error value when given a negative number, as it doesn't support complex numbers.
 
+Создайте новый тип
 #en: Create a new type
 
 	type ErrNegativeSqrt float64
 
+и сделайте его ошибкой, добавив метод
 #en: and make it an `error` by giving it a
 
 	func (e ErrNegativeSqrt) Error() string
 
-#en: method such that `ErrNegativeSqrt(-2).Error()` returns `"cannot`Sqrt`negative`number:`-2"`.
+#en: такой, что `ErrNegativeSqrt(-2).Error()` возвращает `"cannot`Sqrt`negative`number:`-2"`.
 
+*Примечание* вызов `fmt.Sprint(e)` внутри метода `Error` приведет к бесконечному циклу.
+Вы можете избежать этого, преобразуя вначале `e`: `fmt.Sprint(float64(e))`. Почему?
 #en: *Note:* a call to `fmt.Sprint(e)` inside the `Error` method will send the program into an infinite loop. You can avoid this by converting `e` first: `fmt.Sprint(float64(e))`. Why?
 
+Измените вашу функцию `Sqrt`, чтобы она возвращала значение `ErrNegativeSqrt`, когда получает отрицательное число.
 #en: Change your `Sqrt` function to return an `ErrNegativeSqrt` value when given a negative number.
 
 .play methods/exercise-errors.go
