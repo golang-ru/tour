@@ -501,49 +501,72 @@ Switch по типу - это как обычная инструкция switch,
 
 .play methods/exercise-errors.go
 
+* Readers
+#TODO: мне кажется, тут не стоит переводить
 #en: * Readers
 
+Пакет `io` определяет интерфейс `io.Reader`, который представляет
+чтение потока данных.
+#TODO: the read end of a stream of data.
 #en: The `io` package specifies the `io.Reader` interface,
 #en: which represents the read end of a stream of data.
 
+Стандартная библиотека Go содержит [[https://golang.org/search?q=Read#Global][много реализаций]] данного интерфейса,
+включая файлы, сетевые соединения, архиваторы, шифраторы и другие.
 #en: The Go standard library contains [[https://golang.org/search?q=Read#Global][many implementations]] of these interfaces, including files, network connections, compressors, ciphers, and others.
 
+Интерфейс `io.Reader` содержит метод `Read`:
 #en: The `io.Reader` interface has a `Read` method:
 
 	func (T) Read(b []byte) (n int, err error)
 
+`Read` заполняет данными переданный слайс байт и возвращает количетсво заполнненных байт
+и значение ошибки. Метод возвращает ошибку `io.EOF`, когда поток заканчивается.
 #en: `Read` populates the given byte slice with data and returns the number of bytes
 #en: populated and an error value. It returns an `io.EOF` error when the stream
 #en: ends.
 
+Код примера создает [[//golang.org/pkg/strings/#Reader][`strings.Reader`]] и читает из него
+за раз по 8 байт.
 #en: The example code creates a
 #en: [[//golang.org/pkg/strings/#Reader][`strings.Reader`]]
 #en: and consumes its output 8 bytes at a time.
 
 .play methods/reader.go
 
+* Упражнение: Readers
 #en: * Exercise: Readers
 
+Реализуйте `Reader`, который возвращает бесконечный поток ASCII символа `'A'`.
 #en: Implement a `Reader` type that emits an infinite stream of the ASCII character
 #en: `'A'`.
 
 .play methods/exercise-reader.go
 
+* Упражнение: rot13Reader
 #en: * Exercise: rot13Reader
 
+Стандартный пример - [[https://golang.org/pkg/io/#Reader][io.Reader]], который оборачивает другой `io.Reader`, оборачивая поток каким-либо способом.
 #en: A common pattern is an [[https://golang.org/pkg/io/#Reader][io.Reader]] that wraps another `io.Reader`, modifying the stream in some way.
 
+Например, функция [[https://golang.org/pkg/compress/gzip/#NewReader][gzip.NewReader]] принимает `io.Reader` (поток сжатых данных)
+и возвращает `*gzip.Reader`, который также реализует `io.Reader` (поток распакованных данных).
 #en: For example, the [[https://golang.org/pkg/compress/gzip/#NewReader][gzip.NewReader]] function takes an `io.Reader` (a stream of compressed data) and returns a `*gzip.Reader` that also implements `io.Reader` (a stream of the decompressed data).
 
+Напишите `rot13Reader`, который реализует `io.Reader` и читает из `io.Reader`,
+шифруя все буквы алфавита алгоритмом [[https://en.wikipedia.org/wiki/ROT13][rot13]].
 #en: Implement a `rot13Reader` that implements `io.Reader` and reads from an `io.Reader`, modifying the stream by applying the [[https://en.wikipedia.org/wiki/ROT13][rot13]] substitution cipher to all alphabetical characters.
 
+Вам дан тип `rot13Reader`. Сделайте его `io.Reader`, реализуя метод `Read`.
 #en: The `rot13Reader` type is provided for you.
 #en: Make it an `io.Reader` by implementing its `Read` method.
 
 .play methods/exercise-rot-reader.go
 
+* Изображения
 #en: * Images
 
+[[https://golang.org/pkg/image/#Image][Пакет image]] определяет интерфейс `Image`:
 #en: [[https://golang.org/pkg/image/#Image][Package image]] defines the `Image` interface:
 
 	package image
@@ -554,26 +577,41 @@ Switch по типу - это как обычная инструкция switch,
 		At(x, y int) color.Color
 	}
 
+*Примечание*: возвращаемый методом `Bounds` тип `Rectangle` на самом деле [[https://golang.org/pkg/image/#Rectangle][`image.Rectangle`]],
+объявленный внутри пакета `image`.
 #en: *Note*: the `Rectangle` return value of the `Bounds` method is actually an
 #en: [[https://golang.org/pkg/image/#Rectangle][`image.Rectangle`]], as the
 #en: declaration is inside package `image`.
 
+Подробнее смотрите [[https://golang.org/pkg/image/#Image][документацию]].
 #en: (See [[https://golang.org/pkg/image/#Image][the documentation]] for all the details.)
 
+Типы `color.Color` и `color.Model` тоже являются интерфейсами, но мы будем игнорировать это,
+используя предопределенные реализации `color.RGBA` и `color.RGBAModel`.
+Эти интерфейсы и типы определены в [[https://golang.org/pkg/image/color/][пакете image/color]]
 #en: The `color.Color` and `color.Model` types are also interfaces, but we'll ignore that by using the predefined implementations `color.RGBA` and `color.RGBAModel`. These interfaces and types are specified by the [[https://golang.org/pkg/image/color/][image/color package]]
 
 .play methods/images.go
 
+* Упражнение: изображения
 #en: * Exercise: Images
 
+Помните генератор картин, который вы писали ранее?
+Давайте напишем еще один, но теперь он будет возвращать реализацию интерфейса `image.Image` вместо слайса данных.
 #en: Remember the picture generator you wrote earlier? Let's write another one, but this time it will return an implementation of `image.Image` instead of a slice of data.
 
+Определите свой собственный тип `Image`,
+реализующий [[https://golang.org/pkg/image/#Image][необходимые методы]] и вызовите `pic.ShowImage`.
 #en: Define your own `Image` type, implement [[https://golang.org/pkg/image/#Image][the necessary methods]], and call `pic.ShowImage`.
 
+`Bounds` должен вернуть `image.Rectangle`, как `image.Rect(0,`0,`w,`h)`.
 #en: `Bounds` should return a `image.Rectangle`, like `image.Rect(0,`0,`w,`h)`.
 
+`ColorModel` должен вернуть `color.RGBAModel`.
 #en: `ColorModel` should return `color.RGBAModel`.
 
+`At` должен вернуть цвет; значение `v` в последнем генераторе изображений соответствует `color.RGBA{v,`v,`255,`255}` в этом.
+#TODO: не нравится, как звучит
 #en: `At` should return a color; the value `v` in the last picture generator corresponds to `color.RGBA{v,`v,`255,`255}` in this one.
 
 .play methods/exercise-images.go
