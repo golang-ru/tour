@@ -62,11 +62,11 @@ https://golang.org
 Методы с указателем в роли приемника
 #en: * Pointer receivers
 
-Вы можете объявить метод с приемником, переданным по указателю.
+Вы можете объявить метод с приемником-указателем.
 #en: You can declare methods with pointer receivers.
 
 Это значит, что тип приемника имеет синтаксис литерала `*T` для некоторого типа `T`.
-(Кроме того, `T` не может указывать на самого себя, как в случае с `*int`.)
+(Кроме того, `T` сам не может быть указателем.)
 #en: This means the receiver type has the literal syntax `*T` for some type `T`.
 #en: (Also, `T` cannot itself be a pointer such as `*int`.)
 
@@ -75,19 +75,19 @@ https://golang.org
 
 Методы с приемником по указателю могут изменять значение, на которое указывает
 приемник (как здесь делает `Scale`).
-Поскольку часто необходимо в методах изменять приемник, передача приемника по указателю
-используются чаще, чем передача приемника по значению.
+Поскольку часто необходимо в методах изменять приемник, более распростарнен приемник-указатель,
+нежели приемник-значение.
 #en: Methods with pointer receivers can modify the value to which the receiver
 #en: points (as `Scale` does here).
 #en: Since methods often need to modify their receiver, pointer receivers are more
 #en: common than value receivers.
 
-Попробуйте удалить символ `*` из объявления функции `Scale` на строке 16 и посмотрите,
+Попробуйте удалить символ `*` из объявления функции `Scale` в строке 16 и посмотрите,
 как изменится поведение программы.
 #en: Try removing the `*` from the declaration of the `Scale` function on line 16
 #en: and observe how the program's behavior changes.
 
-С передачей приемника по значению, метод `Scale` работает с копией оригинального
+При использовании приемника-значение, метод `Scale` работает с копией оригинального
 значения `Vertex`.
 (Это точно такое же поведение, как и для любого другого аргумента функции.)
 Методу `Scale` необходимо передать приемник по указателю, чтобы изменить значение `Vertex`,
@@ -107,7 +107,7 @@ https://golang.org
 #en: Here we see the `Abs` and `Scale` methods rewritten as functions.
 
 Попробуйте снова удалить `*` со строки 16.
-Можетели вы понять, почему поведение изменилось?
+Можете ли вы понять, почему поведение изменилось?
 Что еще вам нужно изменить, чтобы пример скомпилировался?
 #en: Again, try removing the `*` from line 16.
 #en: Can you see why the behavior changes?
@@ -131,8 +131,8 @@ https://golang.org
 	ScaleFunc(v)  // Ошибка компиляции
 	ScaleFunc(&v) // OK
 
-в то время как методы с приемниками по указателю могут быть вызваны как на
-указателе, так и на значении: // TODO: не нравится!
+в то время как методы с приемником-указателем при вызове принимают его как по значению так и
+по указателю: // TODO: не нравится!
 #en: while methods with pointer receivers take either a value or a pointer as the
 #en: receiver when they are called:
 
