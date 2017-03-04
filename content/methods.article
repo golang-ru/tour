@@ -212,15 +212,15 @@ https://golang.org
 * Интерфейсы
 #en: * Interfaces
 
-_Тип_интерфейса_ определяет множество сигнатур методов.
+_Интерфейсный_тип_ определяется набором сигнатур методов.
 #en: An _interface_type_ is defined as a set of method signatures.
 
-Значением типа интерфейса может быть любое значение, которое реализует его методы.
+Переменная с интерфейсным типом может вмещать любые значения, которые реализуют эти методы.
 #en: A value of interface type can hold any value that implements those methods.
 
-*Примечание:* Злесь допущена ошибка в коде примера на строке 22.
-`Vertex` (тип значения) не реализует интерфейс `Abser`, потому что
-метод `Abs` определен только на `*Vertex` (тип указателя).
+*Примечание:* Здесь допущена ошибка в коде примера в строке 22.
+`Vertex` (тип-значение) не реализует интерфейс `Abser`, потому что
+метод `Abs` определен только на `*Vertex` (тип-указатель).
 #TODO: (the pointer type) - сомневаюсь.
 #en: *Note:* There is an error in the example code on line 22.
 #en: `Vertex` (the value type) doesn't implement `Abser` because
@@ -231,14 +231,15 @@ _Тип_интерфейса_ определяет множество сигна
 Интерфейсы реализуются неявно
 #en: * Interfaces are implemented implicitly
 
-Тип реализует интерфейс реализуя его методы.
-В Go нет явного заверения о намерении, нет ключевого слова "implements".
+Тип реализует интерфейс с помощью реализации его методов.
+В Go нет явного объявления того каким интерфейсам должен соответствовать тип - нет ключевого слова "implements".
 #TODO: может совсем не переводить explicit declaration of intent
 #en: A type implements an interface by implementing its methods.
 #en: There is no explicit declaration of intent, no "implements" keyword.
 
 Неявные интерфейсы разделяют определение интерфеса от его реализации,
-которая может появится в любом пакете без предварительной договоренности.
+которая в последствии может появится в любом пакете без необходимости
+предусматривать это заранее
 #TODO: предварительной договоренности?
 #en: Implicit interfaces decouple the definition of an interface from its
 #en: implementation, which could then appear in any package without prearrangement.
