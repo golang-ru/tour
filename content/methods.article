@@ -144,7 +144,7 @@ https://golang.org
 Для оператора `v.Scale(5)`, даже если `v` это значение, а не указатель,
 метод с приемником по указателю, вызовется автоматичестки.
 То есть, для удобства, Go интерпретирует оператор `v.Scale(5)` как `(&v).Scale(5)`,
-поскольку метод `Scale` принимает приемник по указателю.
+поскольку у метода `Scale` приемник является указателем.
 #en: For the statement `v.Scale(5)`, even though `v` is a value and not a pointer,
 #en: the method with the pointer receiver is called automatically.
 #en: That is, as a convenience, Go interprets the statement `v.Scale(5)` as
@@ -191,7 +191,7 @@ https://golang.org
 #en: The first is so that the method can modify the value that its receiver points to.
 
 Во-вторых, чтобы избежать копирования значения при каждом вызове метода.
-Например, это может быть эффективным, если получатеть является большой структурой.
+Например, это может быть более эффективным, если получатель является большой структурой.
 #en: The second is to avoid copying the value on each method call.
 #en: This can be more efficient if the receiver is a large struct, for example.
 
@@ -200,8 +200,8 @@ https://golang.org
 #en: In this example, both `Scale` and `Abs` are with receiver type `*Vertex`,
 #en: even though the `Abs` method needn't modify its receiver.
 
-В общем, все методы на данном типе должны иметь приемник либо по значению, либо по указателю,
-но не смесь и того, и другого.
+В общем, у всех методов для данного типа приемник должен быть либо значением, либо указателем,
+но не смесью того и другого.
 (Мы увидим почему на следущих страницах.)
 #en: In general, all methods on a given type should have either value or pointer
 #en: receivers, but not a mixture of both.
