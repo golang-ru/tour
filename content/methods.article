@@ -62,11 +62,11 @@ https://golang.org
 Методы с указателем в роли приемника
 #en: * Pointer receivers
 
-Вы можете объявить метод с приемником, переданным по указателю.
+Вы можете объявить метод с приемником-указателем.
 #en: You can declare methods with pointer receivers.
 
 Это значит, что тип приемника имеет синтаксис литерала `*T` для некоторого типа `T`.
-(Кроме того, `T` не может указывать на самого себя, как в случае с `*int`.)
+(Кроме того, `T` сам не может быть указателем.)
 #en: This means the receiver type has the literal syntax `*T` for some type `T`.
 #en: (Also, `T` cannot itself be a pointer such as `*int`.)
 
@@ -75,19 +75,19 @@ https://golang.org
 
 Методы с приемником по указателю могут изменять значение, на которое указывает
 приемник (как здесь делает `Scale`).
-Поскольку часто необходимо в методах изменять приемник, передача приемника по указателю
-используются чаще, чем передача приемника по значению.
+Поскольку часто необходимо в методах изменять приемник, более распростарнен приемник-указатель,
+нежели приемник-значение.
 #en: Methods with pointer receivers can modify the value to which the receiver
 #en: points (as `Scale` does here).
 #en: Since methods often need to modify their receiver, pointer receivers are more
 #en: common than value receivers.
 
-Попробуйте удалить символ `*` из объявления функции `Scale` на строке 16 и посмотрите,
+Попробуйте удалить символ `*` из объявления функции `Scale` в строке 16 и посмотрите,
 как изменится поведение программы.
 #en: Try removing the `*` from the declaration of the `Scale` function on line 16
 #en: and observe how the program's behavior changes.
 
-С передачей приемника по значению, метод `Scale` работает с копией оригинального
+При использовании приемника-значение, метод `Scale` работает с копией оригинального
 значения `Vertex`.
 (Это точно такое же поведение, как и для любого другого аргумента функции.)
 Методу `Scale` необходимо передать приемник по указателю, чтобы изменить значение `Vertex`,
@@ -107,7 +107,7 @@ https://golang.org
 #en: Here we see the `Abs` and `Scale` methods rewritten as functions.
 
 Попробуйте снова удалить `*` со строки 16.
-Можетели вы понять, почему поведение изменилось?
+Можете ли вы понять, почему поведение изменилось?
 Что еще вам нужно изменить, чтобы пример скомпилировался?
 #en: Again, try removing the `*` from line 16.
 #en: Can you see why the behavior changes?
@@ -131,8 +131,8 @@ https://golang.org
 	ScaleFunc(v)  // Ошибка компиляции
 	ScaleFunc(&v) // OK
 
-в то время как методы с приемниками по указателю могут быть вызваны как на
-указателе, так и на значении: // TODO: не нравится!
+в то время как методы с приемником-указателем при вызове принимают его как по значению так и
+по указателю: // TODO: не нравится!
 #en: while methods with pointer receivers take either a value or a pointer as the
 #en: receiver when they are called:
 
@@ -144,7 +144,7 @@ https://golang.org
 Для оператора `v.Scale(5)`, даже если `v` это значение, а не указатель,
 метод с приемником по указателю, вызовется автоматичестки.
 То есть, для удобства, Go интерпретирует оператор `v.Scale(5)` как `(&v).Scale(5)`,
-поскольку метод `Scale` принимает приемник по указателю.
+поскольку у метода `Scale` приемник является указателем.
 #en: For the statement `v.Scale(5)`, even though `v` is a value and not a pointer,
 #en: the method with the pointer receiver is called automatically.
 #en: That is, as a convenience, Go interprets the statement `v.Scale(5)` as
@@ -191,7 +191,7 @@ https://golang.org
 #en: The first is so that the method can modify the value that its receiver points to.
 
 Во-вторых, чтобы избежать копирования значения при каждом вызове метода.
-Например, это может быть эффективным, если получатеть является большой структурой.
+Например, это может быть более эффективным, если получатель является большой структурой.
 #en: The second is to avoid copying the value on each method call.
 #en: This can be more efficient if the receiver is a large struct, for example.
 
@@ -200,8 +200,8 @@ https://golang.org
 #en: In this example, both `Scale` and `Abs` are with receiver type `*Vertex`,
 #en: even though the `Abs` method needn't modify its receiver.
 
-В общем, все методы на данном типе должны иметь приемник либо по значению, либо по указателю,
-но не смесь и того, и другого.
+В общем, у всех методов для данного типа приемник должен быть либо значением, либо указателем,
+но не смесью того и другого.
 (Мы увидим почему на следущих страницах.)
 #en: In general, all methods on a given type should have either value or pointer
 #en: receivers, but not a mixture of both.
@@ -212,15 +212,15 @@ https://golang.org
 * Интерфейсы
 #en: * Interfaces
 
-_Тип_интерфейса_ определяет множество сигнатур методов.
+_Интерфейсный_тип_ определяется набором сигнатур методов.
 #en: An _interface_type_ is defined as a set of method signatures.
 
-Значением типа интерфейса может быть любое значение, которое реализует его методы.
+Переменная с интерфейсным типом может вмещать любые значения, которые реализуют эти методы.
 #en: A value of interface type can hold any value that implements those methods.
 
-*Примечание:* Злесь допущена ошибка в коде примера на строке 22.
-`Vertex` (тип значения) не реализует интерфейс `Abser`, потому что
-метод `Abs` определен только на `*Vertex` (тип указателя).
+*Примечание:* Здесь допущена ошибка в коде примера в строке 22.
+`Vertex` (тип-значение) не реализует интерфейс `Abser`, потому что
+метод `Abs` определен только на `*Vertex` (тип-указатель).
 #TODO: (the pointer type) - сомневаюсь.
 #en: *Note:* There is an error in the example code on line 22.
 #en: `Vertex` (the value type) doesn't implement `Abser` because
@@ -231,14 +231,15 @@ _Тип_интерфейса_ определяет множество сигна
 Интерфейсы реализуются неявно
 #en: * Interfaces are implemented implicitly
 
-Тип реализует интерфейс реализуя его методы.
-В Go нет явного заверения о намерении, нет ключевого слова "implements".
+Тип реализует интерфейс с помощью реализации его методов.
+В Go нет явного объявления того каким интерфейсам должен соответствовать тип - нет ключевого слова "implements".
 #TODO: может совсем не переводить explicit declaration of intent
 #en: A type implements an interface by implementing its methods.
 #en: There is no explicit declaration of intent, no "implements" keyword.
 
 Неявные интерфейсы разделяют определение интерфеса от его реализации,
-которая может появится в любом пакете без предварительной договоренности.
+которая в последствии может появится в любом пакете без необходимости
+предусматривать это заранее
 #TODO: предварительной договоренности?
 #en: Implicit interfaces decouple the definition of an interface from its
 #en: implementation, which could then appear in any package without prearrangement.
